@@ -220,6 +220,81 @@
     "fb_purchase_food_category": {
       "fr": { "question": "Qu'est-ce que tu as acheté à manger ?" },
       "es": { "question": "¿Qué compraste para comer?" }
+    },
+    "Parisbasketball_discovery": {
+      "fr": {
+        "question": "Comment avez-vous découvert cette expérience?",
+        "choices": "Instagram;Facebook;TikTok;Newsletter;During a match at the arena;On the Fever platform;Word of mouth;Official club website;Other"
+      }
+    },
+    "Parisbasketball_rating_general": {
+      "fr": { "question": "Quelle est votre satisfaction globale vis‑à‑vis du Paris Basketball Arena Tour ?" }
+    },
+    "Parisbasketball_expectations": {
+      "fr": {
+        "question": "Le tour a‑t‑il répondu à vos attentes ?",
+        "choices": "Pas du tout;Peu;Moyennement;Largement;Totalement"
+      }
+    },
+    "Parisbasketball_rating_hosting_staff": {
+      "fr": { "question": "Accueil et encadrement du staff" }
+    },
+    "Parisbasketball_rating_duration": {
+      "fr": { "question": "Durée de la visite" }
+    },
+    "Parisbasketball_rating_guided_tour": {
+      "fr": { "question": "Qualité des explications et du guide" }
+    },
+    "Parisbasketball_rating_interest_of_visit": {
+      "fr": { "question": "Intérêt des zones visitées (vestiaires, parquet, loges, etc.)" }
+    },
+    "Parisbasketball_rating_storytelling": {
+      "fr": { "question": "Qualité du storytelling" }
+    },
+    "Parisbasketball_rating_interactivity": {
+      "fr": { "question": "Interactivité (participation, échanges)" }
+    },
+    "Parisbasketball_rating_capacity": {
+      "fr": { "question": "Nombre de personnes visitant en simultané" }
+    },
+    "Parisbasketball_rating_activities": {
+      "fr": { "question": "Qualité et diversité des animations" }
+    },
+    "Parisbasketball_favorite_places": {
+      "fr": { "question": "Quel est (sont) le(s) lieu(x) que vous avez préféré découvrir?" }
+    },
+    "Parisbasketball_highlights": {
+      "fr": { "question": "Y a‑t‑il un moment qui vous a particulièrement marqué ?" }
+    },
+    "Parisbasketball_relation_to_IP_post_visit": {
+      "fr": {
+        "question": "Après cette visite, vous sentez‑vous plus proche du club ?",
+        "choices": "Oui, beaucoup plus;Oui, un peu plus;Non pas vraiment"
+      }
+    },
+    "Parisbasketball_attendance_intent": {
+      "fr": {
+        "question": "L'expérience vous donne‑t‑elle envie de revenir voir un match ou d'en parler autour de vous ?",
+        "choices": "Oui;Peut‑être;Non"
+      }
+    },
+    "Parisbasketball_stayed_to_watch_match": {
+      "fr": {
+        "question": "Êtes‑vous restés pour regarder le match après votre visite ?",
+        "choices": "Oui;Non"
+      }
+    },
+    "Parisbasketball_strengths": {
+      "fr": { "question": "Quels sont les principales forces de la visite ?" }
+    },
+    "Parisbasketball_weaknesses": {
+      "fr": { "question": "Quelles sont les principales faiblesses (points négatifs) de la visite ?" }
+    },
+    "Parisbasketball_recommendation": {
+      "fr": {
+        "question": "Recommanderiez‑vous cette visite à un ami ou un proche ?",
+        "choices": "Oui, sans hésiter;Certainement;Peut‑être;Pas vraiment;Non"
+      }
     }
   }
 }
