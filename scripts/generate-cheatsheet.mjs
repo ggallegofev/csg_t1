@@ -45,23 +45,36 @@ function cellValue(v) {
   return v;
 }
 
-function refToRow(ref, questionWording, questionDescription) {
+function getTranslation(translations, refId, lang) {
+  if (!lang || !translations[refId]?.[lang]) return null;
+  const t = translations[refId][lang];
+  if (typeof t === 'string') return { question: t };
+  return t;
+}
+
+function refToRow(ref, trans) {
+  const q = trans?.question ?? ref.question ?? '';
+  const qd = trans?.question_description ?? ref.question_description ?? '';
+  const left = trans?.left_label ?? ref.left_label ?? '';
+  const center = trans?.center_label ?? ref.center_label ?? '';
+  const right = trans?.right_label ?? ref.right_label ?? '';
+  const choices = trans?.choices ?? ref.choices ?? '';
   return [
     ref.scalability ?? '',
     ref.group ?? '',
     ref.comment ?? '',
     ref.ref ?? '',
-    questionWording ?? ref.question ?? '',
-    questionDescription ?? ref.question_description ?? '',
+    q,
+    qd,
     ref.type ?? '',
     ref.scale ?? '',
     ref.start_at_one === true ? 'TRUE' : ref.start_at_one === false ? 'FALSE' : '',
-    ref.left_label ?? '',
-    ref.center_label ?? '',
-    ref.right_label ?? '',
+    left,
+    center,
+    right,
     ref.allow_multiple_selection === true ? 'TRUE' : ref.allow_multiple_selection === false ? 'FALSE' : '',
     ref.allow_other_choice === true ? 'TRUE' : ref.allow_other_choice === false ? 'FALSE' : '',
-    ref.choices ?? '',
+    choices,
     ref.randomized === true ? 'TRUE' : ref.randomized === false ? 'FALSE' : '',
   ];
 }
@@ -104,17 +117,8 @@ function main() {
       missing.push(refId);
       continue;
     }
-    let questionWording = ref.question;
-    let questionDescription = ref.question_description;
-    if (lang && translations[refId]?.[lang]) {
-      const t = translations[refId][lang];
-      if (typeof t === 'string') questionWording = t;
-      else if (t && typeof t.question === 'string') {
-        questionWording = t.question;
-        if (typeof t.question_description === 'string') questionDescription = t.question_description;
-      }
-    }
-    const row = refToRow(ref, questionWording, questionDescription);
+    const trans = getTranslation(translations, refId, lang);
+    const row = refToRow(ref, trans);
     rows.push(row.map((c) => escapeCsv(cellValue(c))).join(','));
   }
 

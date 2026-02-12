@@ -126,23 +126,38 @@
       return v;
     }
 
-    function refToRow(ref, questionWording, questionDescription) {
+    function getOverrides(ref, lang) {
+      if (!lang) return null;
+      const t = translations[ref.ref]?.[lang];
+      if (!t) return null;
+      if (typeof t === 'string') return { question: t };
+      return t;
+    }
+
+    function refToRow(ref, overrides) {
+      const o = overrides || {};
+      const q = o.question ?? ref.question ?? '';
+      const qd = o.question_description ?? ref.question_description ?? '';
+      const left = o.left_label ?? ref.left_label ?? '';
+      const center = o.center_label ?? ref.center_label ?? '';
+      const right = o.right_label ?? ref.right_label ?? '';
+      const choices = o.choices ?? ref.choices ?? '';
       return [
         ref.scalability ?? '',
         ref.group ?? '',
         ref.comment ?? '',
         ref.ref ?? '',
-        questionWording ?? ref.question ?? '',
-        questionDescription ?? ref.question_description ?? '',
+        q,
+        qd,
         ref.type ?? '',
         ref.scale ?? '',
         ref.start_at_one === true ? 'TRUE' : ref.start_at_one === false ? 'FALSE' : '',
-        ref.left_label ?? '',
-        ref.center_label ?? '',
-        ref.right_label ?? '',
+        left,
+        center,
+        right,
         ref.allow_multiple_selection === true ? 'TRUE' : ref.allow_multiple_selection === false ? 'FALSE' : '',
         ref.allow_other_choice === true ? 'TRUE' : ref.allow_other_choice === false ? 'FALSE' : '',
-        ref.choices ?? '',
+        choices,
         ref.randomized === true ? 'TRUE' : ref.randomized === false ? 'FALSE' : ''
       ];
     }
@@ -175,23 +190,33 @@
     }
 
     function getWording(ref, lang) {
-      if (!lang) return { q: ref.question, d: ref.question_description };
-      const t = translations[ref.ref]?.[lang];
-      if (!t) return { q: ref.question, d: ref.question_description };
-      if (typeof t === 'string') return { q: t, d: ref.question_description };
-      return { q: t.question ?? ref.question, d: t.question_description ?? ref.question_description };
+      const o = getOverrides(ref, lang);
+      if (!o) return { q: ref.question, d: ref.question_description };
+      return { q: o.question ?? ref.question, d: o.question_description ?? ref.question_description };
+    }
+
+    function getSelectedLang() {
+      const el = document.getElementById('lang');
+      if (!el) return null;
+      const v = (el.value || '').trim();
+      return v || null;
     }
 
     function renderTable() {
+      const lang = getSelectedLang();
+      const previouslySelected = getSelectedRefs();
       const tbody = document.getElementById('tbody');
       tbody.innerHTML = refs.map(ref => {
         const id = 'ref-' + ref.ref;
+        const wording = getWording(ref, lang);
+        const q = (wording.q || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        const checked = previouslySelected.includes(ref.ref) ? ' checked' : '';
         return '<tr data-ref="' + ref.ref + '">' +
-          '<td><input type="checkbox" class="ref-cb" id="' + id + '" value="' + ref.ref + '"></td>' +
+          '<td><input type="checkbox" class="ref-cb" id="' + id + '" value="' + ref.ref + '"' + checked + '></td>' +
           '<td>' + (ref.scalability || '') + '</td>' +
           '<td>' + (ref.group || '') + '</td>' +
           '<td>' + (ref.ref || '') + '</td>' +
-          '<td class="question" title="' + (ref.question || '').replace(/"/g, '&quot;') + '">' + (ref.question || '').replace(/</g, '&lt;') + '</td>' +
+          '<td class="question" title="' + q + '">' + q + '</td>' +
           '<td>' + (ref.type || '') + '</td>' +
         '</tr>';
       }).join('');
@@ -215,8 +240,8 @@
       for (const refId of selectedIds) {
         const ref = refByRef.get(refId);
         if (!ref) continue;
-        const { q, d } = getWording(ref, lang);
-        const row = refToRow(ref, q, d);
+        const overrides = getOverrides(ref, lang);
+        const row = refToRow(ref, overrides);
         rows.push(row.map(c => escapeCsv(cellValue(c))).join(','));
       }
       return rows.join('\n');
@@ -228,13 +253,13 @@
         alert('Select at least one REF.');
         return;
       }
-      const lang = document.getElementById('lang').value || null;
+      const lang = getSelectedLang();
       const csv = buildCsv(selected, lang);
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'cheatsheet.csv';
+      a.download = lang ? 'cheatsheet-' + lang + '.csv' : 'cheatsheet.csv';
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -259,6 +284,8 @@
     });
 
     document.getElementById('download').addEventListener('click', downloadCsv);
+
+    document.getElementById('lang').addEventListener('change', () => renderTable());
 
     loadData();
   </script>

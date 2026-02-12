@@ -7,7 +7,7 @@ Central store of survey question REFs for post-experience surveys. Each REF is a
 - **`data/refs.json`** — All REFs with English wording, question type, and settings. Sorted by two categorisations:
   - **Scalability**: `Standard` (widely applicable) or `Custom` (tailored to a specific experience)
   - **Group**: `Plan` (general experience), `User` (attendee), or `Ancillary`
-- **`data/translations.json`** — (Future) Translations per REF and language (fr, es, etc.).
+- **`data/translations.json`** — Translations per REF and language (e.g. `fr`). Each entry can include: `question`, `question_description`, `left_label`, `center_label`, `right_label`, and `choices` (semicolon-separated). Omitted fields fall back to the REF’s English value. French (modern, everyday) is provided for all REFs.
 - **`data/ref-schema.json`** — JSON Schema for refs; use for validation and editor support.
 
 ## Cheatsheet column order

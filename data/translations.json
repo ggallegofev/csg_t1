@@ -1,4 +1,225 @@
 {
-  "description": "Translations keyed by ref_id and language code. Add entries like: \"ref_id\": { \"fr\": \"Question en français\", \"es\": \"Pregunta en español\" }",
-  "translations": {}
+  "description": "Translations per ref_id and language. Each entry can include: question, question_description, left_label, center_label, right_label, choices (semicolon-separated). Omitted fields fall back to the REF's English value.",
+  "translations": {
+    "three_words": {
+      "fr": { "question": "Comment décrirais-tu cette expérience en 3 mots ?" },
+      "es": { "question": "¿Cómo describirías esta experiencia en 3 palabras?" }
+    },
+    "favorite_element": {
+      "fr": { "question": "Plus que deux questions, {{hidden:name}} ! Qu'est-ce que tu as le plus aimé dans {{hidden:p}} ?" },
+      "es": { "question": "Solo dos preguntas más, {{hidden:name}}. ¿Qué es lo que más te gustó de {{hidden:p}}?" }
+    },
+    "improvement_ideas": {
+      "fr": {
+        "question": "À ton avis, qu'est-ce qui pourrait améliorer cette expérience ?",
+        "question_description": "Pense à appuyer sur le bouton pour enregistrer tes réponses !"
+      },
+      "es": {
+        "question": "En tu opinión, ¿qué podría mejorar esta experiencia?",
+        "question_description": "¡Recuerda pulsar el botón para guardar tus respuestas!"
+      }
+    },
+    "appeal_factors": {
+      "fr": { "question": "Qu'est-ce qui t'a donné envie de vivre cette expérience au départ ?" },
+      "es": { "question": "¿Qué fue lo que te animó a vivir esta experiencia al principio?" }
+    },
+    "company": {
+      "fr": {
+        "question": "Avec qui as-tu participé à cette expérience ?",
+        "choices": "Conjoint·e;Mon/Mes enfant(s);Ami·e·s - travail / école;Ami·e·s - loisirs;Parent(s);Frères et sœurs;Autre famille - adulte(s);Autre famille - enfant(s);Rendez-vous;Seul·e"
+      },
+      "es": {
+        "question": "¿Con quién fuiste a esta experiencia?",
+        "choices": "Pareja;Mis hijos;Amigos del trabajo/estudios;Amigos del día a día;Padres;Hermanos;Otros familiares adultos;Otros familiares niños;Cita;Solo/a"
+      }
+    },
+    "travel_time": {
+      "fr": {
+        "question": "Combien de temps as-tu mis pour te rendre à {{hidden:p}} ?",
+        "choices": "0-30 min;30 min - 1 h;1 h - 2 h;Plus de 2 h"
+      },
+      "es": {
+        "question": "¿Cuánto tardaste en llegar a {{hidden:p}}?",
+        "choices": "0-30 min;30 min - 1 h;1-2 h;Más de 2 h"
+      }
+    },
+    "residence": {
+      "fr": { "question": "Habites-tu dans la ville où a eu lieu l'expérience ?" },
+      "es": { "question": "¿Vives en la ciudad donde tuvo lugar la experiencia?" }
+    },
+    "age": {
+      "fr": {
+        "question": "Quel est ton âge ?",
+        "choices": "Moins de 13 ans;13-17 ans;18-24 ans;25-34 ans;35-44 ans;45-54 ans;55-64 ans;65-74 ans;75-84 ans;85 ans et plus;Je ne souhaite pas répondre"
+      },
+      "es": {
+        "question": "¿Cuántos años tienes?",
+        "choices": "Menos de 13;13-17;18-24;25-34;35-44;45-54;55-64;65-74;75-84;85 o más;Prefiero no decir"
+      }
+    },
+    "discovery": {
+      "fr": {
+        "question": "Comment as-tu découvert cette expérience ?",
+        "choices": "Facebook;Instagram;TikTok;Médias numériques;Presse écrite;TV / Radio;Panneaux / Affichage;Google / Internet;Bouche-à-oreille"
+      },
+      "es": {
+        "question": "¿Cómo te enteraste de esta experiencia?",
+        "choices": "Facebook;Instagram;TikTok;Medios digitales;Prensa;TV / Radio;Vallas y carteles;Google / Internet;Boca a boca"
+      }
+    },
+    "children_age": {
+      "fr": {
+        "question": "Quel est l'âge des enfants ?",
+        "choices": "0-6 ans;7-12 ans;13-17 ans"
+      },
+      "es": {
+        "question": "¿Qué edad tienen los niños?",
+        "choices": "0-6 años;7-12 años;13-17 años"
+      }
+    },
+    "time_spent": {
+      "fr": {
+        "question": "Combien de temps as-tu passé sur l'expérience ?",
+        "choices": "0-5 min;5-10 min;10-20 min;Plus de 20 min"
+      },
+      "es": {
+        "question": "¿Cuánto tiempo pasaste en la experiencia?",
+        "choices": "0-5 min;5-10 min;10-20 min;Más de 20 min"
+      }
+    },
+    "time_waiting": {
+      "fr": {
+        "question": "Combien de temps as-tu passé dans les files d'attente ?",
+        "choices": "0-5 min;5-10 min;10-20 min;Plus de 20 min"
+      },
+      "es": {
+        "question": "¿Cuánto tiempo pasaste en las colas?",
+        "choices": "0-5 min;5-10 min;10-20 min;Más de 20 min"
+      }
+    },
+    "fb_purchase": {
+      "fr": { "question": "As-tu acheté des boissons ou de la nourriture sur place ?" },
+      "es": { "question": "¿Compraste comida o bebida en el recinto?" }
+    },
+    "plan_nps": {
+      "fr": {
+        "question": "Recommanderais-tu {{hidden:p}} à tes amis ?",
+        "left_label": "pas du tout",
+        "right_label": "tout à fait"
+      },
+      "es": {
+        "question": "¿Recomendarías {{hidden:p}} a tus amigos?",
+        "left_label": "nada",
+        "right_label": "totalmente"
+      }
+    },
+    "duration": {
+      "fr": {
+        "question": "Qu'as-tu pensé de la durée de l'expérience ?",
+        "left_label": "trop court",
+        "center_label": "parfait",
+        "right_label": "trop long"
+      },
+      "es": {
+        "question": "¿Qué te pareció la duración de la experiencia?",
+        "left_label": "muy corta",
+        "center_label": "perfecta",
+        "right_label": "muy larga"
+      }
+    },
+    "expectations_reality": {
+      "fr": {
+        "question": "L'expérience a-t-elle répondu à tes attentes ?",
+        "left_label": "en dessous de mes attentes",
+        "right_label": "au-delà de mes attentes"
+      },
+      "es": {
+        "question": "¿La experiencia cumplió con lo que esperabas?",
+        "left_label": "por debajo de lo que esperaba",
+        "right_label": "por encima de lo que esperaba"
+      }
+    },
+    "return_likelihood": {
+      "fr": {
+        "question": "Reviendrais-tu volontiers à cette expérience ?",
+        "left_label": "pas du tout",
+        "right_label": "tout à fait"
+      },
+      "es": {
+        "question": "¿Volverías a esta experiencia?",
+        "left_label": "nada",
+        "right_label": "totalmente"
+      }
+    },
+    "capacity": {
+      "fr": {
+        "question": "Qu'as-tu pensé du nombre de personnes présentes ?",
+        "left_label": "trop vide",
+        "center_label": "parfait",
+        "right_label": "trop bondé"
+      },
+      "es": {
+        "question": "¿Qué te pareció el número de personas?",
+        "left_label": "muy vacío",
+        "center_label": "perfecto",
+        "right_label": "muy lleno"
+      }
+    },
+    "navigation_exhibition": {
+      "fr": {
+        "question": "As-tu trouvé l'exposition facile à parcourir ?",
+        "left_label": "très facile",
+        "right_label": "très difficile"
+      },
+      "es": {
+        "question": "¿Te resultó fácil moverte por la exposición?",
+        "left_label": "muy fácil",
+        "right_label": "muy difícil"
+      }
+    },
+    "navigation_light_trail": {
+      "fr": {
+        "question": "As-tu trouvé le parcours lumineux facile à suivre ?",
+        "left_label": "très facile",
+        "right_label": "très difficile"
+      },
+      "es": {
+        "question": "¿Te resultó fácil seguir el recorrido de luces?",
+        "left_label": "muy fácil",
+        "right_label": "muy difícil"
+      }
+    },
+    "rating_venue": {
+      "fr": { "question": "Comment noterais-tu le lieu ?" },
+      "es": { "question": "¿Cómo valorarías el espacio?" }
+    },
+    "rating_vfm": {
+      "fr": { "question": "Comment noterais-tu le rapport qualité-prix de ton billet ?" },
+      "es": { "question": "¿Cómo valorarías la relación calidad-precio de tu entrada?" }
+    },
+    "rating_staff": {
+      "fr": { "question": "Comment noterais-tu l'équipe sur place ?" },
+      "es": { "question": "¿Cómo valorarías al personal?" }
+    },
+    "fb_rating_offering": {
+      "fr": { "question": "Comment noterais-tu l'offre nourriture et boissons en général ?" },
+      "es": { "question": "¿Cómo valorarías la oferta de comida y bebida en general?" }
+    },
+    "fb_rating_food": {
+      "fr": { "question": "Comment noterais-tu ce que tu as mangé ?" },
+      "es": { "question": "¿Cómo valorarías lo que comiste?" }
+    },
+    "fb_rating_offering_food": {
+      "fr": { "question": "Comment noterais-tu la nourriture proposée en général ?" },
+      "es": { "question": "¿Cómo valorarías la comida disponible en general?" }
+    },
+    "fb_rating_drinks": {
+      "fr": { "question": "Comment noterais-tu les boissons [que tu as achetées] ?" },
+      "es": { "question": "¿Cómo valorarías las bebidas [que compraste]?" }
+    },
+    "fb_purchase_food_category": {
+      "fr": { "question": "Qu'est-ce que tu as acheté à manger ?" },
+      "es": { "question": "¿Qué compraste para comer?" }
+    }
+  }
 }
