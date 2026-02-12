@@ -62,12 +62,20 @@
       font-weight: 600;
       white-space: nowrap;
     }
+    th.sortable { cursor: pointer; user-select: none; }
+    th.sortable:hover { background: #f0f0f0; }
     tr:hover { background: #f9f9f9; }
     td.question { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     td.question[title] { cursor: help; }
     .loading, .error { padding: 2rem; text-align: center; color: #666; }
     .error { color: #c00; }
     .selected-count { font-size: 0.85rem; color: #555; }
+    tr.detail-row td { background: #f9f9f9; padding: 0.75rem 1rem; border-bottom: 1px solid #eee; vertical-align: top; }
+    .detail-content { font-size: 0.8rem; display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 1rem; max-width: 640px; }
+    .detail-content dt { color: #555; }
+    .detail-content dd { margin: 0; }
+    .detail-toggle { cursor: pointer; color: #666; text-decoration: underline; }
+    .detail-toggle:hover { color: #1a1a1a; }
   </style>
 </head>
 <body>
@@ -83,6 +91,28 @@
         <option value="es">Spanish</option>
       </select>
     </label>
+    <label>
+      <span>Search</span>
+      <input type="text" id="search" placeholder="Search refs…" style="padding:0.4rem 0.6rem;font-size:0.9rem;border:1px solid #ccc;border-radius:4px;min-width:140px;">
+    </label>
+    <label>
+      <span>Scalability</span>
+      <select id="filterScalability">
+        <option value="">All</option>
+        <option value="Standard">Standard</option>
+        <option value="Custom">Custom</option>
+      </select>
+    </label>
+    <label>
+      <span>Group</span>
+      <select id="filterGroup">
+        <option value="">All</option>
+        <option value="Plan">Plan</option>
+        <option value="User">User</option>
+        <option value="Ancillary">Ancillary</option>
+      </select>
+    </label>
+    <button type="button" class="secondary" id="commonSet">Common set</button>
     <button type="button" class="secondary" id="selectAll">Select all</button>
     <button type="button" class="secondary" id="clearAll">Clear</button>
     <button type="button" id="download">Download cheatsheet</button>
@@ -95,11 +125,12 @@
       <thead>
         <tr>
           <th><input type="checkbox" id="toggleAll" title="Toggle all"></th>
-          <th>Scalability</th>
-          <th>Group</th>
-          <th>ref</th>
-          <th>question</th>
-          <th>type</th>
+          <th class="sortable" data-sort="scalability">Scalability</th>
+          <th class="sortable" data-sort="group">Group</th>
+          <th class="sortable" data-sort="ref">ref</th>
+          <th class="sortable" data-sort="question">question</th>
+          <th class="sortable" data-sort="type">type</th>
+          <th></th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
@@ -164,6 +195,14 @@
 
     let refs = [];
     let translations = {};
+    const selectedRefs = new Set();
+    let filteredAndSortedRefs = [];
+    let searchQuery = '';
+    let filterScalability = '';
+    let filterGroup = '';
+    let sortKey = '';
+    let sortDirection = 'asc';
+    let expandedRef = null;
 
     async function loadData() {
       const loading = document.getElementById('loading');
@@ -186,6 +225,7 @@
       }
       loading.hidden = true;
       document.getElementById('table').hidden = false;
+      applyFiltersAndSort();
       renderTable();
     }
 
@@ -202,36 +242,122 @@
       return v || null;
     }
 
+    function toggleDetail(refId) {
+      expandedRef = expandedRef === refId ? null : refId;
+      renderTable();
+    }
+
+    function formatDetailRow(ref, lang) {
+      const o = getOverrides(ref, lang) || {};
+      const q = o.question ?? ref.question ?? '';
+      const qd = o.question_description ?? ref.question_description ?? '';
+      const left = o.left_label ?? ref.left_label ?? '';
+      const center = o.center_label ?? ref.center_label ?? '';
+      const right = o.right_label ?? ref.right_label ?? '';
+      const choices = o.choices ?? ref.choices ?? '';
+      const type = ref.type ?? '';
+      const scale = ref.scale ?? '';
+      const startAtOne = ref.start_at_one === true ? 'TRUE' : ref.start_at_one === false ? 'FALSE' : '';
+      const multi = ref.allow_multiple_selection === true ? 'TRUE' : ref.allow_multiple_selection === false ? 'FALSE' : '';
+      const other = ref.allow_other_choice === true ? 'TRUE' : ref.allow_other_choice === false ? 'FALSE' : '';
+      const rand = ref.randomized === true ? 'TRUE' : ref.randomized === false ? 'FALSE' : '';
+      const rows = [
+        ['question', q],
+        ['question description', qd],
+        ['type', type],
+        ['scale', scale],
+        ['start_at_one', startAtOne],
+        ['left_label', left],
+        ['center_label', center],
+        ['right_label', right],
+        ['allow_multiple_selection', multi],
+        ['allow_other_choice', other],
+        ['choices', choices],
+        ['randomized', rand]
+      ];
+      const cells = rows.map(([k, v]) => '<dt>' + k + '</dt><dd>' + (v == null ? '' : String(v)).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</dd>').join('');
+      return '<dl class="detail-content">' + cells + '</dl>';
+    }
+
+    function applyFiltersAndSort() {
+      const lang = getSelectedLang();
+      const q = (document.getElementById('search')?.value || '').trim().toLowerCase();
+      const scaleFilter = (document.getElementById('filterScalability')?.value || '').trim();
+      const groupFilter = (document.getElementById('filterGroup')?.value || '').trim();
+      searchQuery = q;
+      filterScalability = scaleFilter;
+      filterGroup = groupFilter;
+      let list = refs.filter(ref => {
+        if (scaleFilter && ref.scalability !== scaleFilter) return false;
+        if (groupFilter && ref.group !== groupFilter) return false;
+        if (!q) return true;
+        const wording = getWording(ref, lang);
+        const question = (wording.q || '').toLowerCase();
+        const refId = (ref.ref || '').toLowerCase();
+        const scal = (ref.scalability || '').toLowerCase();
+        const grp = (ref.group || '').toLowerCase();
+        const typ = (ref.type || '').toLowerCase();
+        return refId.includes(q) || question.includes(q) || scal.includes(q) || grp.includes(q) || typ.includes(q);
+      });
+      const key = sortKey;
+      const dir = sortDirection === 'asc' ? 1 : -1;
+      if (key) {
+        list = list.slice().sort((a, b) => {
+          let va, vb;
+          if (key === 'question') {
+            va = (getWording(a, lang).q || '').toLowerCase();
+            vb = (getWording(b, lang).q || '').toLowerCase();
+          } else {
+            va = (a[key] ?? '').toString().toLowerCase();
+            vb = (b[key] ?? '').toString().toLowerCase();
+          }
+          const c = va < vb ? -1 : va > vb ? 1 : 0;
+          return c * dir;
+        });
+      }
+      filteredAndSortedRefs = list;
+    }
+
     function renderTable() {
       const lang = getSelectedLang();
-      const previouslySelected = getSelectedRefs();
+      const list = filteredAndSortedRefs.length ? filteredAndSortedRefs : refs.slice();
       const tbody = document.getElementById('tbody');
-      tbody.innerHTML = refs.map(ref => {
+      const frag = [];
+      list.forEach(ref => {
         const id = 'ref-' + ref.ref;
         const wording = getWording(ref, lang);
         const q = (wording.q || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-        const checked = previouslySelected.includes(ref.ref) ? ' checked' : '';
-        return '<tr data-ref="' + ref.ref + '">' +
+        const checked = selectedRefs.has(ref.ref) ? ' checked' : '';
+        const detailLabel = expandedRef === ref.ref ? 'Hide details' : 'Details';
+        frag.push('<tr data-ref="' + ref.ref + '">' +
           '<td><input type="checkbox" class="ref-cb" id="' + id + '" value="' + ref.ref + '"' + checked + '></td>' +
           '<td>' + (ref.scalability || '') + '</td>' +
           '<td>' + (ref.group || '') + '</td>' +
           '<td>' + (ref.ref || '') + '</td>' +
           '<td class="question" title="' + q + '">' + q + '</td>' +
           '<td>' + (ref.type || '') + '</td>' +
-        '</tr>';
-      }).join('');
+          '<td><span class="detail-toggle" data-ref="' + ref.ref + '">' + detailLabel + '</span></td>' +
+        '</tr>');
+        if (expandedRef === ref.ref) {
+          frag.push('<tr class="detail-row"><td colspan="7">' + formatDetailRow(ref, lang) + '</td></tr>');
+        }
+      });
+      tbody.innerHTML = frag.join('');
       updateCount();
     }
 
     function getSelectedRefs() {
-      return Array.from(document.querySelectorAll('.ref-cb:checked')).map(cb => cb.value);
+      return Array.from(selectedRefs);
     }
 
     function updateCount() {
-      const n = getSelectedRefs().length;
+      const n = selectedRefs.size;
+      const list = filteredAndSortedRefs.length ? filteredAndSortedRefs : refs;
+      const visibleCount = list.length;
+      const visibleSelected = visibleCount && list.every(r => selectedRefs.has(r.ref)) ? visibleCount : 0;
       document.getElementById('selectedCount').textContent = n + ' selected';
-      document.getElementById('toggleAll').checked = refs.length > 0 && n === refs.length;
-      document.getElementById('toggleAll').indeterminate = n > 0 && n < refs.length;
+      document.getElementById('toggleAll').checked = visibleCount > 0 && visibleSelected === visibleCount;
+      document.getElementById('toggleAll').indeterminate = visibleSelected > 0 && visibleSelected < visibleCount;
     }
 
     function buildCsv(selectedIds, lang) {
@@ -248,7 +374,7 @@
     }
 
     function downloadCsv() {
-      const selected = getSelectedRefs();
+      const selected = Array.from(selectedRefs);
       if (selected.length === 0) {
         alert('Select at least one REF.');
         return;
@@ -265,27 +391,74 @@
     }
 
     document.getElementById('tbody').addEventListener('change', e => {
-      if (e.target.classList.contains('ref-cb')) updateCount();
+      if (e.target.classList.contains('ref-cb')) {
+        const refId = e.target.value;
+        if (e.target.checked) selectedRefs.add(refId);
+        else selectedRefs.delete(refId);
+        updateCount();
+      }
+    });
+
+    document.getElementById('tbody').addEventListener('click', e => {
+      if (e.target.classList.contains('detail-toggle')) {
+        const refId = e.target.getAttribute('data-ref');
+        if (refId) toggleDetail(refId);
+      }
     });
 
     document.getElementById('toggleAll').addEventListener('change', function() {
-      document.querySelectorAll('.ref-cb').forEach(cb => { cb.checked = this.checked; });
-      updateCount();
+      const list = filteredAndSortedRefs.length ? filteredAndSortedRefs : refs;
+      list.forEach(r => this.checked ? selectedRefs.add(r.ref) : selectedRefs.delete(r.ref));
+      renderTable();
     });
 
     document.getElementById('selectAll').addEventListener('click', () => {
-      document.querySelectorAll('.ref-cb').forEach(cb => { cb.checked = true; });
-      updateCount();
+      const list = filteredAndSortedRefs.length ? filteredAndSortedRefs : refs;
+      list.forEach(r => selectedRefs.add(r.ref));
+      renderTable();
     });
 
     document.getElementById('clearAll').addEventListener('click', () => {
-      document.querySelectorAll('.ref-cb').forEach(cb => { cb.checked = false; });
-      updateCount();
+      selectedRefs.clear();
+      renderTable();
+    });
+
+    const COMMON_SET_REFS = ['plan_nps', 'age', 'company', 'discovery', 'improvement_ideas', 'favorite_element', 'rating_vfm', 'rating_venue'];
+    document.getElementById('commonSet').addEventListener('click', () => {
+      COMMON_SET_REFS.forEach(id => selectedRefs.add(id));
+      renderTable();
     });
 
     document.getElementById('download').addEventListener('click', downloadCsv);
 
-    document.getElementById('lang').addEventListener('change', () => renderTable());
+    document.getElementById('lang').addEventListener('change', () => {
+      applyFiltersAndSort();
+      renderTable();
+    });
+
+    document.getElementById('search').addEventListener('input', () => {
+      applyFiltersAndSort();
+      renderTable();
+    });
+    document.getElementById('filterScalability').addEventListener('change', () => {
+      applyFiltersAndSort();
+      renderTable();
+    });
+    document.getElementById('filterGroup').addEventListener('change', () => {
+      applyFiltersAndSort();
+      renderTable();
+    });
+
+    document.querySelectorAll('th.sortable').forEach(th => {
+      th.addEventListener('click', () => {
+        const key = th.getAttribute('data-sort');
+        if (!key) return;
+        if (sortKey === key) sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+        else { sortKey = key; sortDirection = 'asc'; }
+        applyFiltersAndSort();
+        renderTable();
+      });
+    });
 
     loadData();
   </script>
