@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "REF Question Library",
+  "description": "Central store of survey question REFs. Column order (for cheatsheet export): Scalability, Group, Comment, ref, question, question description, type, scale, start_at_one, left_label, center_label, right_label, allow_multiple_selection, allow_other_choice, choices, randomized",
+  "type": "object",
+  "required": ["refs"],
+  "properties": {
+    "refs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ref" }
+    }
+  },
+  "$defs": {
+    "ref": {
+      "type": "object",
+      "required": ["scalability", "group", "ref", "question"],
+      "properties": {
+        "scalability": { "type": "string", "enum": ["Standard", "Custom"] },
+        "group": { "type": "string", "enum": ["Plan", "User", "Ancillary"] },
+        "comment": { "type": ["string", "null"] },
+        "ref": { "type": "string", "description": "Unique REF identifier (column 4 in cheatsheet)" },
+        "question": { "type": "string", "description": "English question wording" },
+        "question_description": { "type": ["string", "null"] },
+        "type": {
+          "type": ["string", "null"],
+          "enum": ["long_text", "multiple_choice", "opinion_scale", "rating", null]
+        },
+        "scale": { "type": ["integer", "null"] },
+        "start_at_one": { "type": ["boolean", "null"] },
+        "left_label": { "type": ["string", "null"] },
+        "center_label": { "type": ["string", "null"] },
+        "right_label": { "type": ["string", "null"] },
+        "allow_multiple_selection": { "type": ["boolean", "null"] },
+        "allow_other_choice": { "type": ["boolean", "null"] },
+        "choices": { "type": ["string", "null"], "description": "Semicolon-separated options" },
+        "randomized": { "type": ["boolean", "null"] }
+      }
+    }
+  }
+}

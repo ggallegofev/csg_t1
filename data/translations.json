@@ -1,0 +1,4 @@
+{
+  "description": "Translations keyed by ref_id and language code. Add entries like: \"ref_id\": { \"fr\": \"Question en français\", \"es\": \"Pregunta en español\" }",
+  "translations": {}
+}

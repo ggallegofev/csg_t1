@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>REF Question Library — Cheatsheet builder</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 1rem 1.5rem;
+      background: #f5f5f5;
+      color: #1a1a1a;
+    }
+    h1 { margin: 0 0 0.5rem; font-size: 1.5rem; font-weight: 600; }
+    .subtitle { color: #555; font-size: 0.9rem; margin-bottom: 1rem; }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .toolbar label { display: flex; align-items: center; gap: 0.35rem; }
+    select {
+      padding: 0.4rem 0.6rem;
+      font-size: 0.9rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #fff;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    button:hover { background: #333; }
+    button.secondary { background: #666; }
+    button.secondary:hover { background: #555; }
+    .table-wrap {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      overflow: auto;
+      max-height: 70vh;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+    th {
+      position: sticky;
+      top: 0;
+      background: #fafafa;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    tr:hover { background: #f9f9f9; }
+    td.question { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    td.question[title] { cursor: help; }
+    .loading, .error { padding: 2rem; text-align: center; color: #666; }
+    .error { color: #c00; }
+    .selected-count { font-size: 0.85rem; color: #555; }
+  </style>
+</head>
+<body>
+  <h1>REF Question Library</h1>
+  <p class="subtitle">Select REFs and download a cheatsheet CSV for your form generator.</p>
+
+  <div class="toolbar">
+    <label>
+      <span>Language</span>
+      <select id="lang">
+        <option value="">English</option>
+        <option value="fr">French</option>
+        <option value="es">Spanish</option>
+      </select>
+    </label>
+    <button type="button" class="secondary" id="selectAll">Select all</button>
+    <button type="button" class="secondary" id="clearAll">Clear</button>
+    <button type="button" id="download">Download cheatsheet</button>
+    <span class="selected-count" id="selectedCount">0 selected</span>
+  </div>
+
+  <div class="table-wrap">
+    <div class="loading" id="loading">Loading REFs…</div>
+    <table id="table" hidden>
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="toggleAll" title="Toggle all"></th>
+          <th>Scalability</th>
+          <th>Group</th>
+          <th>ref</th>
+          <th>question</th>
+          <th>type</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const CHEATSHEET_HEADERS = [
+      'Scalability', 'Group', 'Comment', 'ref', 'question', 'question description',
+      'type', 'scale', 'start_at_one', 'left_label', 'center_label', 'right_label',
+      'allow_multiple_selection', 'allow_other_choice', 'choices (separated by ";")', 'randomized'
+    ];
+
+    function escapeCsv(value) {
+      if (value === null || value === undefined || value === '') return '';
+      const s = String(value);
+      if (/[,"\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+      return s;
+    }
+
+    function cellValue(v) {
+      if (v === null || v === undefined) return '';
+      if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE';
+      return v;
+    }
+
+    function refToRow(ref, questionWording, questionDescription) {
+      return [
+        ref.scalability ?? '',
+        ref.group ?? '',
+        ref.comment ?? '',
+        ref.ref ?? '',
+        questionWording ?? ref.question ?? '',
+        questionDescription ?? ref.question_description ?? '',
+        ref.type ?? '',
+        ref.scale ?? '',
+        ref.start_at_one === true ? 'TRUE' : ref.start_at_one === false ? 'FALSE' : '',
+        ref.left_label ?? '',
+        ref.center_label ?? '',
+        ref.right_label ?? '',
+        ref.allow_multiple_selection === true ? 'TRUE' : ref.allow_multiple_selection === false ? 'FALSE' : '',
+        ref.allow_other_choice === true ? 'TRUE' : ref.allow_other_choice === false ? 'FALSE' : '',
+        ref.choices ?? '',
+        ref.randomized === true ? 'TRUE' : ref.randomized === false ? 'FALSE' : ''
+      ];
+    }
+
+    let refs = [];
+    let translations = {};
+
+    async function loadData() {
+      const loading = document.getElementById('loading');
+      try {
+        const [refsRes, transRes] = await Promise.all([
+          fetch('data/refs.json'),
+          fetch('data/translations.json').catch(() => null)
+        ]);
+        if (!refsRes.ok) throw new Error('Failed to load refs.json');
+        const refsData = await refsRes.json();
+        refs = refsData.refs || [];
+        if (transRes && transRes.ok) {
+          const transData = await transRes.json();
+          translations = transData.translations || {};
+        }
+      } catch (e) {
+        loading.textContent = 'Error: ' + (e.message || 'Could not load data. Serve this folder with a local server (e.g. npx serve .).');
+        loading.className = 'error';
+        return;
+      }
+      loading.hidden = true;
+      document.getElementById('table').hidden = false;
+      renderTable();
+    }
+
+    function getWording(ref, lang) {
+      if (!lang) return { q: ref.question, d: ref.question_description };
+      const t = translations[ref.ref]?.[lang];
+      if (!t) return { q: ref.question, d: ref.question_description };
+      if (typeof t === 'string') return { q: t, d: ref.question_description };
+      return { q: t.question ?? ref.question, d: t.question_description ?? ref.question_description };
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = refs.map(ref => {
+        const id = 'ref-' + ref.ref;
+        return '<tr data-ref="' + ref.ref + '">' +
+          '<td><input type="checkbox" class="ref-cb" id="' + id + '" value="' + ref.ref + '"></td>' +
+          '<td>' + (ref.scalability || '') + '</td>' +
+          '<td>' + (ref.group || '') + '</td>' +
+          '<td>' + (ref.ref || '') + '</td>' +
+          '<td class="question" title="' + (ref.question || '').replace(/"/g, '&quot;') + '">' + (ref.question || '').replace(/</g, '&lt;') + '</td>' +
+          '<td>' + (ref.type || '') + '</td>' +
+        '</tr>';
+      }).join('');
+      updateCount();
+    }
+
+    function getSelectedRefs() {
+      return Array.from(document.querySelectorAll('.ref-cb:checked')).map(cb => cb.value);
+    }
+
+    function updateCount() {
+      const n = getSelectedRefs().length;
+      document.getElementById('selectedCount').textContent = n + ' selected';
+      document.getElementById('toggleAll').checked = refs.length > 0 && n === refs.length;
+      document.getElementById('toggleAll').indeterminate = n > 0 && n < refs.length;
+    }
+
+    function buildCsv(selectedIds, lang) {
+      const refByRef = new Map(refs.map(r => [r.ref, r]));
+      const rows = [CHEATSHEET_HEADERS.map(escapeCsv).join(',')];
+      for (const refId of selectedIds) {
+        const ref = refByRef.get(refId);
+        if (!ref) continue;
+        const { q, d } = getWording(ref, lang);
+        const row = refToRow(ref, q, d);
+        rows.push(row.map(c => escapeCsv(cellValue(c))).join(','));
+      }
+      return rows.join('\n');
+    }
+
+    function downloadCsv() {
+      const selected = getSelectedRefs();
+      if (selected.length === 0) {
+        alert('Select at least one REF.');
+        return;
+      }
+      const lang = document.getElementById('lang').value || null;
+      const csv = buildCsv(selected, lang);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'cheatsheet.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById('tbody').addEventListener('change', e => {
+      if (e.target.classList.contains('ref-cb')) updateCount();
+    });
+
+    document.getElementById('toggleAll').addEventListener('change', function() {
+      document.querySelectorAll('.ref-cb').forEach(cb => { cb.checked = this.checked; });
+      updateCount();
+    });
+
+    document.getElementById('selectAll').addEventListener('click', () => {
+      document.querySelectorAll('.ref-cb').forEach(cb => { cb.checked = true; });
+      updateCount();
+    });
+
+    document.getElementById('clearAll').addEventListener('click', () => {
+      document.querySelectorAll('.ref-cb').forEach(cb => { cb.checked = false; });
+      updateCount();
+    });
+
+    document.getElementById('download').addEventListener('click', downloadCsv);
+
+    loadData();
+  </script>
+</body>
+</html>

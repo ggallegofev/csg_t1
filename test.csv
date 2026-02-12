@@ -1,0 +1,2 @@
+Scalability,Group,Comment,ref,question,question description,type,scale,start_at_one,left_label,center_label,right_label,allow_multiple_selection,allow_other_choice,"choices (separated by "";"")",randomized
+Standard,Plan,,plan_nps,Would you recommend {{hidden:p}} to your friends?,,opinion_scale,11,FALSE,not at all,,absolutely,,,,
