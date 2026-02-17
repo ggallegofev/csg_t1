@@ -76,7 +76,7 @@
     .detail-content dd { margin: 0; }
     .detail-toggle { cursor: pointer; color: #666; text-decoration: underline; }
     .detail-toggle:hover { color: #1a1a1a; }
-    .fill-refs-section { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(0,0,0,0.1); }
+    .fill-refs-section { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(0,0,0,0.1); }
     .fill-refs-section h2 { margin: 0 0 0.5rem; font-size: 1.2rem; font-weight: 600; }
     .fill-refs-section .fill-refs-desc { color: #555; font-size: 0.9rem; margin-bottom: 1rem; max-width: 560px; }
     .fill-refs-section .fill-refs-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
@@ -93,6 +93,31 @@
 <body>
   <h1>REF Question Library</h1>
   <p class="subtitle">Select REFs and download a cheatsheet CSV for your form generator.</p>
+
+  <section class="fill-refs-section" id="fillRefsSection">
+    <h2>Fill missing REFs from cheatsheet</h2>
+    <p class="fill-refs-desc">Upload a CSV with question wordings but missing REFs; we'll match each row to the library and give you a REF list to paste into your sheet.</p>
+    <div class="fill-refs-toolbar">
+      <label>
+        <span>CSV file</span>
+        <input type="file" id="fillRefsFile" accept=".csv">
+      </label>
+      <button type="button" class="secondary" id="copyRefsBtn" disabled>Copy REFs</button>
+    </div>
+    <div id="fillRefsError" class="error-msg" hidden></div>
+    <div id="fillRefsResults" class="fill-refs-results" hidden>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Question (snippet)</th>
+            <th>Matched REF</th>
+          </tr>
+        </thead>
+        <tbody id="fillRefsTbody"></tbody>
+      </table>
+    </div>
+  </section>
 
   <div class="toolbar">
     <label>
@@ -148,31 +173,6 @@
       <tbody id="tbody"></tbody>
     </table>
   </div>
-
-  <section class="fill-refs-section" id="fillRefsSection">
-    <h2>Fill missing REFs from cheatsheet</h2>
-    <p class="fill-refs-desc">Upload a CSV with question wordings but missing REFs; we'll match each row to the library and give you a REF list to paste into your sheet.</p>
-    <div class="fill-refs-toolbar">
-      <label>
-        <span>CSV file</span>
-        <input type="file" id="fillRefsFile" accept=".csv">
-      </label>
-      <button type="button" class="secondary" id="copyRefsBtn" disabled>Copy REFs</button>
-    </div>
-    <div id="fillRefsError" class="error-msg" hidden></div>
-    <div id="fillRefsResults" class="fill-refs-results" hidden>
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Question (snippet)</th>
-            <th>Matched REF</th>
-          </tr>
-        </thead>
-        <tbody id="fillRefsTbody"></tbody>
-      </table>
-    </div>
-  </section>
 
   <script>
     const CHEATSHEET_HEADERS = [
