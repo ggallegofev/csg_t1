@@ -10,7 +10,7 @@
       font-family: system-ui, -apple-system, sans-serif;
       margin: 0;
       padding: 1rem 1.5rem;
-      background: #ffe9ec;
+      background: #fafafa;
       color: #1a1a1a;
     }
     h1 { margin: 0 0 0.5rem; font-size: 1.5rem; font-weight: 600; }
@@ -76,6 +76,18 @@
     .detail-content dd { margin: 0; }
     .detail-toggle { cursor: pointer; color: #666; text-decoration: underline; }
     .detail-toggle:hover { color: #1a1a1a; }
+    .fill-refs-section { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(0,0,0,0.1); }
+    .fill-refs-section h2 { margin: 0 0 0.5rem; font-size: 1.2rem; font-weight: 600; }
+    .fill-refs-section .fill-refs-desc { color: #555; font-size: 0.9rem; margin-bottom: 1rem; max-width: 560px; }
+    .fill-refs-section .fill-refs-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    .fill-refs-section .fill-refs-toolbar input[type="file"] { font-size: 0.9rem; }
+    .fill-refs-results { background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: auto; max-height: 40vh; margin-top: 1rem; }
+    .fill-refs-results table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .fill-refs-results th, .fill-refs-results td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+    .fill-refs-results th { background: #fafafa; font-weight: 600; }
+    .fill-refs-results td.question-snippet { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .fill-refs-results .no-match { color: #999; }
+    .fill-refs-section .error-msg { color: #c00; font-size: 0.9rem; margin-top: 0.5rem; }
   </style>
 </head>
 <body>
@@ -137,12 +149,88 @@
     </table>
   </div>
 
+  <section class="fill-refs-section" id="fillRefsSection">
+    <h2>Fill missing REFs from cheatsheet</h2>
+    <p class="fill-refs-desc">Upload a CSV with question wordings but missing REFs; we'll match each row to the library and give you a REF list to paste into your sheet.</p>
+    <div class="fill-refs-toolbar">
+      <label>
+        <span>CSV file</span>
+        <input type="file" id="fillRefsFile" accept=".csv">
+      </label>
+      <button type="button" class="secondary" id="copyRefsBtn" disabled>Copy REFs</button>
+    </div>
+    <div id="fillRefsError" class="error-msg" hidden></div>
+    <div id="fillRefsResults" class="fill-refs-results" hidden>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Question (snippet)</th>
+            <th>Matched REF</th>
+          </tr>
+        </thead>
+        <tbody id="fillRefsTbody"></tbody>
+      </table>
+    </div>
+  </section>
+
   <script>
     const CHEATSHEET_HEADERS = [
       'Scalability', 'Group', 'Comment', 'ref', 'question', 'question description',
       'type', 'scale', 'start_at_one', 'left_label', 'center_label', 'right_label',
       'allow_multiple_selection', 'allow_other_choice', 'choices (separated by ";")', 'randomized'
     ];
+
+    function normalizeQuestion(text) {
+      if (text == null || text === '') return '';
+      return String(text).trim().replace(/\s+/g, ' ').toLowerCase();
+    }
+
+    function parseCsv(text) {
+      const rows = [];
+      let i = 0;
+      const len = text.length;
+      while (i < len) {
+        const row = [];
+        while (i < len) {
+          if (text[i] === '"') {
+            let cell = '';
+            i++;
+            while (i < len) {
+              if (text[i] === '"') {
+                i++;
+                if (text[i] === '"') { cell += '"'; i++; }
+                else break;
+              } else { cell += text[i]; i++; }
+            }
+            row.push(cell);
+            if (text[i] === ',') i++;
+            else if (text[i] === '\r' || text[i] === '\n' || i >= len) break;
+          } else {
+            let cell = '';
+            while (i < len && text[i] !== ',' && text[i] !== '\r' && text[i] !== '\n') {
+              cell += text[i];
+              i++;
+            }
+            row.push(cell.trim());
+            if (text[i] === ',') i++;
+            else break;
+          }
+        }
+        if (text[i] === '\r') i++;
+        if (text[i] === '\n') i++;
+        rows.push(row);
+      }
+      return rows;
+    }
+
+    function findColumnIndex(headers, name) {
+      const n = normalizeQuestion(name);
+      for (let i = 0; i < headers.length; i++) {
+        if (normalizeQuestion(headers[i]) === n) return i;
+      }
+      return -1;
+    }
 
     function escapeCsv(value) {
       if (value === null || value === undefined || value === '') return '';
@@ -195,6 +283,7 @@
 
     let refs = [];
     let translations = {};
+    let questionLookup = new Map();
     const selectedRefs = new Set();
     let filteredAndSortedRefs = [];
     let searchQuery = '';
@@ -203,6 +292,7 @@
     let sortKey = '';
     let sortDirection = 'asc';
     let expandedRef = null;
+    let lastMatchedRefs = [];
 
     async function loadData() {
       const loading = document.getElementById('loading');
@@ -225,8 +315,34 @@
       }
       loading.hidden = true;
       document.getElementById('table').hidden = false;
+      buildQuestionLookup();
       applyFiltersAndSort();
       renderTable();
+    }
+
+    function buildQuestionLookup() {
+      questionLookup = new Map();
+      for (const r of refs) {
+        const q = (r.question || '').trim();
+        if (q) {
+          const key = normalizeQuestion(q);
+          if (!questionLookup.has(key)) questionLookup.set(key, r.ref);
+        }
+        const trans = translations[r.ref];
+        if (trans && typeof trans === 'object') {
+          for (const lang of Object.keys(trans)) {
+            const t = trans[lang];
+            const qq = typeof t === 'string' ? t : (t && t.question);
+            if (qq) {
+              const trimmed = String(qq).trim();
+              if (trimmed) {
+                const key = normalizeQuestion(trimmed);
+                if (!questionLookup.has(key)) questionLookup.set(key, r.ref);
+              }
+            }
+          }
+        }
+      }
     }
 
     function getWording(ref, lang) {
@@ -389,6 +505,102 @@
       a.click();
       URL.revokeObjectURL(url);
     }
+
+    function processFillRefsCsv(csvText) {
+      const rows = parseCsv(csvText);
+      if (rows.length === 0) {
+        return { error: 'CSV is empty.' };
+      }
+      const headers = rows[0];
+      const dataRows = rows.slice(1);
+      const questionCol = findColumnIndex(headers, 'question');
+      if (questionCol < 0) {
+        return { error: 'No column named "question" found. Use the standard cheatsheet column order or a CSV with a "question" header.' };
+      }
+      const refCol = findColumnIndex(headers, 'ref');
+      const matched = [];
+      for (let i = 0; i < dataRows.length; i++) {
+        const row = dataRows[i];
+        const existingRef = refCol >= 0 && row[refCol] != null ? String(row[refCol]).trim() : '';
+        const questionCell = row[questionCol] != null ? String(row[questionCol]) : '';
+        const normalized = normalizeQuestion(questionCell);
+        let refId = '';
+        if (existingRef) {
+          refId = existingRef;
+        } else if (normalized && questionLookup.has(normalized)) {
+          refId = questionLookup.get(normalized);
+        }
+        matched.push({
+          rowIndex: i + 1,
+          questionSnippet: questionCell.length > 50 ? questionCell.slice(0, 50) + '…' : questionCell,
+          ref: refId
+        });
+      }
+      lastMatchedRefs = matched;
+      return { matched, dataRows };
+    }
+
+    function renderRefLookupResults() {
+      const tbody = document.getElementById('fillRefsTbody');
+      const frag = lastMatchedRefs.map(m => {
+        const refDisplay = m.ref || '—';
+        const cellClass = m.ref ? '' : ' no-match';
+        const snippet = (m.questionSnippet || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        return '<tr><td>' + m.rowIndex + '</td><td class="question-snippet" title="' + snippet + '">' + snippet + '</td><td class="' + cellClass.trim() + '">' + refDisplay + '</td></tr>';
+      });
+      tbody.innerHTML = frag.join('');
+    }
+
+    function copyRefsToClipboard() {
+      const text = lastMatchedRefs.map(m => m.ref || '—').join('\n');
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyRefsBtn');
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = orig; }, 1500);
+      }).catch(() => alert('Could not copy to clipboard.'));
+    }
+
+    document.getElementById('fillRefsFile').addEventListener('change', function() {
+      const file = this.files && this.files[0];
+      const errEl = document.getElementById('fillRefsError');
+      const resultsEl = document.getElementById('fillRefsResults');
+      const copyBtn = document.getElementById('copyRefsBtn');
+      errEl.hidden = true;
+      resultsEl.hidden = true;
+      copyBtn.disabled = true;
+      lastMatchedRefs = [];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        let text;
+        try {
+          text = reader.result;
+          if (typeof text !== 'string') text = new TextDecoder('utf-8').decode(text);
+        } catch (e) {
+          errEl.textContent = 'Could not read file.';
+          errEl.hidden = false;
+          return;
+        }
+        const result = processFillRefsCsv(text);
+        if (result.error) {
+          errEl.textContent = result.error;
+          errEl.hidden = false;
+          return;
+        }
+        if (result.matched && result.matched.length === 0) {
+          errEl.textContent = 'No data rows.';
+          errEl.hidden = false;
+          return;
+        }
+        renderRefLookupResults();
+        resultsEl.hidden = false;
+        copyBtn.disabled = false;
+      };
+      reader.readAsText(file, 'UTF-8');
+    });
+
+    document.getElementById('copyRefsBtn').addEventListener('click', copyRefsToClipboard);
 
     document.getElementById('tbody').addEventListener('change', e => {
       if (e.target.classList.contains('ref-cb')) {
