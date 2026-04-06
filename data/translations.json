@@ -3,11 +3,13 @@
   "translations": {
     "three_words": {
       "fr": { "question": "Comment décrirais-tu cette expérience en 3 mots ?" },
-      "es": { "question": "¿Cómo describirías esta experiencia en 3 palabras?" }
+      "es": { "question": "¿Cómo describirías esta experiencia en 3 palabras?" },
+      "tr": { "question": "Bu deneyimi 3 kelimeyle nasıl anlatırsın?" }
     },
     "favorite_element": {
       "fr": { "question": "Plus que deux questions, {{hidden:name}} ! Qu'est-ce que tu as le plus aimé dans {{hidden:p}} ?" },
-      "es": { "question": "Solo dos preguntas más, {{hidden:name}}. ¿Qué es lo que más te gustó de {{hidden:p}}?" }
+      "es": { "question": "Solo dos preguntas más, {{hidden:name}}. ¿Qué es lo que más te gustó de {{hidden:p}}?" },
+      "tr": { "question": "Sadece iki soru kaldı, {{hidden:name}}! {{hidden:p}} ile ilgili en çok neyi sevdin?" }
     },
     "improvement_ideas": {
       "fr": {
@@ -17,11 +19,16 @@
       "es": {
         "question": "En tu opinión, ¿qué podría mejorar esta experiencia?",
         "question_description": "¡Recuerda pulsar el botón para guardar tus respuestas!"
+      },
+      "tr": {
+        "question": "Sence bu deneyimi ne geliştirebilir?",
+        "question_description": "Yanıtlarını kaydetmek için düğmeye basmayı unutma!"
       }
     },
     "appeal_factors": {
       "fr": { "question": "Qu'est-ce qui t'a donné envie de vivre cette expérience au départ ?" },
-      "es": { "question": "¿Qué fue lo que te animó a vivir esta experiencia al principio?" }
+      "es": { "question": "¿Qué fue lo que te animó a vivir esta experiencia al principio?" },
+      "tr": { "question": "İlk başta bu deneyime gitmeye seni ne ikna etti?" }
     },
     "company": {
       "fr": {
@@ -31,6 +38,10 @@
       "es": {
         "question": "¿Con quién fuiste a esta experiencia?",
         "choices": "Pareja;Mis hijos;Amigos del trabajo/estudios;Amigos del día a día;Padres;Hermanos;Otros familiares adultos;Otros familiares niños;Cita;Solo/a"
+      },
+      "tr": {
+        "question": "Bu deneyime kiminle geldin?",
+        "choices": "Eşim veya partnerimle;Çocuklarımla;İş veya okul arkadaşlarımla;Boş zaman arkadaşlarımla;Annemle babamla;Kardeşlerimle;Diğer yetişkin akrabalarımla;Diğer çocuk akrabalarımla;Randevumla;Tek başıma"
       }
     },
     "travel_time": {
@@ -41,11 +52,16 @@
       "es": {
         "question": "¿Cuánto tardaste en llegar a {{hidden:p}}?",
         "choices": "0-30 min;30 min - 1 h;1-2 h;Más de 2 h"
+      },
+      "tr": {
+        "question": "{{hidden:p}}'ye ulaşmak ne kadar sürdü?",
+        "choices": "0-30 dk;30 dk - 1 saat;1-2 saat;2 saatten fazla"
       }
     },
     "residence": {
       "fr": { "question": "Habites-tu dans la ville où a eu lieu l'expérience ?" },
-      "es": { "question": "¿Vives en la ciudad donde tuvo lugar la experiencia?" }
+      "es": { "question": "¿Vives en la ciudad donde tuvo lugar la experiencia?" },
+      "tr": { "question": "Deneyimin yapıldığı şehirde mi yaşıyorsun?" }
     },
     "age": {
       "fr": {
@@ -55,6 +71,10 @@
       "es": {
         "question": "¿Cuántos años tienes?",
         "choices": "Menos de 13;13-17;18-24;25-34;35-44;45-54;55-64;65-74;75-84;85 o más;Prefiero no decir"
+      },
+      "tr": {
+        "question": "Kaç yaşındasın?",
+        "choices": "13 yaşından küçük;13-17;18-24;25-34;35-44;45-54;55-64;65-74;75-84;85 ve üzeri;Cevap vermek istemiyorum"
       }
     },
     "discovery": {
@@ -65,6 +85,10 @@
       "es": {
         "question": "¿Cómo te enteraste de esta experiencia?",
         "choices": "Facebook;Instagram;TikTok;Medios digitales;Prensa;TV / Radio;Vallas y carteles;Google / Internet;Boca a boca"
+      },
+      "tr": {
+        "question": "Bu deneyimi nasıl keşfettin?",
+        "choices": "Facebook;Instagram;TikTok;Dijital medya;Basılı basın;TV / Radyo;Billboard ve afişler;Google / İnternet;Tanıdıklardan / kulaktan kulağa"
       }
     },
     "children_age": {
@@ -75,6 +99,10 @@
       "es": {
         "question": "¿Qué edad tienen los niños?",
         "choices": "0-6 años;7-12 años;13-17 años"
+      },
+      "tr": {
+        "question": "Çocuklar kaç yaşında?",
+        "choices": "0-6 yaş;7-12 yaş;13-17 yaş"
       }
     },
     "time_spent": {
@@ -85,6 +113,10 @@
       "es": {
         "question": "¿Cuánto tiempo pasaste en la experiencia?",
         "choices": "0-5 min;5-10 min;10-20 min;Más de 20 min"
+      },
+      "tr": {
+        "question": "Deneyimde ne kadar zaman geçirdin?",
+        "choices": "0-5 dk;5-10 dk;10-20 dk;20 dk'dan fazla"
       }
     },
     "time_waiting": {
@@ -95,11 +127,16 @@
       "es": {
         "question": "¿Cuánto tiempo pasaste en las colas?",
         "choices": "0-5 min;5-10 min;10-20 min;Más de 20 min"
+      },
+      "tr": {
+        "question": "Kuyrukta ne kadar bekledin?",
+        "choices": "0-5 dk;5-10 dk;10-20 dk;20 dk'dan fazla"
       }
     },
     "fb_purchase": {
       "fr": { "question": "As-tu acheté des boissons ou de la nourriture sur place ?" },
-      "es": { "question": "¿Compraste comida o bebida en el recinto?" }
+      "es": { "question": "¿Compraste comida o bebida en el recinto?" },
+      "tr": { "question": "Mekânda yiyecek veya içecek satın aldın mı?" }
     },
     "plan_nps": {
       "fr": {
@@ -111,6 +148,11 @@
         "question": "¿Recomendarías {{hidden:p}} a tus amigos?",
         "left_label": "nada",
         "right_label": "totalmente"
+      },
+      "tr": {
+        "question": "{{hidden:p}}'yi arkadaşlarına tavsiye eder misin?",
+        "left_label": "hiç",
+        "right_label": "kesinlikle"
       }
     },
     "duration": {
@@ -125,6 +167,12 @@
         "left_label": "muy corta",
         "center_label": "perfecta",
         "right_label": "muy larga"
+      },
+      "tr": {
+        "question": "Deneyimin süresi hakkında ne düşünüyorsun?",
+        "left_label": "çok kısa",
+        "center_label": "tam isabet",
+        "right_label": "çok uzun"
       }
     },
     "expectations_reality": {
@@ -137,6 +185,11 @@
         "question": "¿La experiencia cumplió con lo que esperabas?",
         "left_label": "por debajo de lo que esperaba",
         "right_label": "por encima de lo que esperaba"
+      },
+      "tr": {
+        "question": "Deneyim beklentilerini karşıladı mı?",
+        "left_label": "beklentimin altında",
+        "right_label": "beklentimin üstünde"
       }
     },
     "return_likelihood": {
@@ -149,6 +202,11 @@
         "question": "¿Volverías a esta experiencia?",
         "left_label": "nada",
         "right_label": "totalmente"
+      },
+      "tr": {
+        "question": "Bu deneyime tekrar gelmek ister misin?",
+        "left_label": "hiç",
+        "right_label": "kesinlikle"
       }
     },
     "capacity": {
@@ -163,6 +221,12 @@
         "left_label": "muy vacío",
         "center_label": "perfecto",
         "right_label": "muy lleno"
+      },
+      "tr": {
+        "question": "Oradaki kişi sayısı hakkında ne düşünüyorsun?",
+        "left_label": "çok boş",
+        "center_label": "ideal",
+        "right_label": "çok kalabalık"
       }
     },
     "navigation_exhibition": {
@@ -175,6 +239,11 @@
         "question": "¿Te resultó fácil moverte por la exposición?",
         "left_label": "muy fácil",
         "right_label": "muy difícil"
+      },
+      "tr": {
+        "question": "Sergiyi gezmek kolay mıydı?",
+        "left_label": "çok kolay",
+        "right_label": "çok zor"
       }
     },
     "navigation_light_trail": {
@@ -187,39 +256,52 @@
         "question": "¿Te resultó fácil seguir el recorrido de luces?",
         "left_label": "muy fácil",
         "right_label": "muy difícil"
+      },
+      "tr": {
+        "question": "Işık parkurunu takip etmek kolay mıydı?",
+        "left_label": "çok kolay",
+        "right_label": "çok zor"
       }
     },
     "rating_venue": {
       "fr": { "question": "Comment noterais-tu le lieu ?" },
-      "es": { "question": "¿Cómo valorarías el espacio?" }
+      "es": { "question": "¿Cómo valorarías el espacio?" },
+      "tr": { "question": "Mekânı nasıl puanlarsın?" }
     },
     "rating_vfm": {
       "fr": { "question": "Comment noterais-tu le rapport qualité-prix de ton billet ?" },
-      "es": { "question": "¿Cómo valorarías la relación calidad-precio de tu entrada?" }
+      "es": { "question": "¿Cómo valorarías la relación calidad-precio de tu entrada?" },
+      "tr": { "question": "Biletinin fiyatına göre değerini nasıl değerlendirirsin?" }
     },
     "rating_staff": {
       "fr": { "question": "Comment noterais-tu l'équipe sur place ?" },
-      "es": { "question": "¿Cómo valorarías al personal?" }
+      "es": { "question": "¿Cómo valorarías al personal?" },
+      "tr": { "question": "Sahadaki ekibi nasıl puanlarsın?" }
     },
     "fb_rating_offering": {
       "fr": { "question": "Comment noterais-tu l'offre nourriture et boissons en général ?" },
-      "es": { "question": "¿Cómo valorarías la oferta de comida y bebida en general?" }
+      "es": { "question": "¿Cómo valorarías la oferta de comida y bebida en general?" },
+      "tr": { "question": "Yemek ve içecek seçeneklerini genel olarak nasıl puanlarsın?" }
     },
     "fb_rating_food": {
       "fr": { "question": "Comment noterais-tu ce que tu as mangé ?" },
-      "es": { "question": "¿Cómo valorarías lo que comiste?" }
+      "es": { "question": "¿Cómo valorarías lo que comiste?" },
+      "tr": { "question": "Yediğin yemeği nasıl puanlarsın?" }
     },
     "fb_rating_offering_food": {
       "fr": { "question": "Comment noterais-tu la nourriture proposée en général ?" },
-      "es": { "question": "¿Cómo valorarías la comida disponible en general?" }
+      "es": { "question": "¿Cómo valorarías la comida disponible en general?" },
+      "tr": { "question": "Sunulan yemekleri genel olarak nasıl puanlarsın?" }
     },
     "fb_rating_drinks": {
       "fr": { "question": "Comment noterais-tu les boissons [que tu as achetées] ?" },
-      "es": { "question": "¿Cómo valorarías las bebidas [que compraste]?" }
+      "es": { "question": "¿Cómo valorarías las bebidas [que compraste]?" },
+      "tr": { "question": "[Satın aldığın] içecekleri nasıl puanlarsın?" }
     },
     "fb_purchase_food_category": {
       "fr": { "question": "Qu'est-ce que tu as acheté à manger ?" },
-      "es": { "question": "¿Qué compraste para comer?" }
+      "es": { "question": "¿Qué compraste para comer?" },
+      "tr": { "question": "Yemek için ne satın aldın?" }
     },
     "Parisbasketball_discovery": {
       "fr": {
